@@ -30,7 +30,6 @@ const questions = [
   },
 ];
 
-// Display the quiz questions and choices
 function renderQuestions() {
   for (let i = 0; i < questions.length; i++) {
     const question = questions[i];
@@ -49,8 +48,30 @@ function renderQuestions() {
       const choiceText = document.createTextNode(choice);
       questionElement.appendChild(choiceElement);
       questionElement.appendChild(choiceText);
+
+      // Move the event listener here
+      choiceElement.addEventListener('change', ((i, choice) => {
+        return function() {
+          userAnswers[i] = choice;
+          sessionStorage.setItem('progress', JSON.stringify(userAnswers));
+        }
+      })(i, choice));
     }
     questionsElement.appendChild(questionElement);
   }
 }
+
+const questionsElement = document.getElementById('questions');
+let userAnswers = JSON.parse(sessionStorage.getItem('progress')) || [];
 renderQuestions();
+
+document.getElementById('submit').addEventListener('click', function() {
+  let score = 0;
+  for (let i = 0; i < questions.length; i++) {
+    if (userAnswers[i] === questions[i].answer) {
+      score++;
+    }
+  }
+  document.getElementById('score').innerText = 'Your score is ' + score + ' out of ' + questions.length + '.';
+  localStorage.setItem('score', score);
+});
